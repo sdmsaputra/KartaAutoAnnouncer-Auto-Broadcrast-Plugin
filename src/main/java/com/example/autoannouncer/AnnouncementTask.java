@@ -6,11 +6,13 @@ import java.util.List;
 public class AnnouncementTask extends BukkitRunnable {
 
     private final AutoAnnouncer plugin;
+    private final String prefix;
     private final List<String> messages;
     private int messageIndex = 0;
 
-    public AnnouncementTask(AutoAnnouncer plugin, List<String> messages) {
+    public AnnouncementTask(AutoAnnouncer plugin, String prefix, List<String> messages) {
         this.plugin = plugin;
+        this.prefix = prefix;
         this.messages = messages;
     }
 
@@ -24,8 +26,11 @@ public class AnnouncementTask extends BukkitRunnable {
         // Get the current message
         String message = messages.get(messageIndex);
 
+        // Combine prefix and message, then colorize the whole thing
+        String finalMessage = prefix + message;
+
         // Broadcast the colorized message
-        plugin.getServer().broadcastMessage(AutoAnnouncer.colorize(message));
+        plugin.getServer().broadcastMessage(AutoAnnouncer.colorize(finalMessage));
 
         // Move to the next message for the next execution
         messageIndex++;
