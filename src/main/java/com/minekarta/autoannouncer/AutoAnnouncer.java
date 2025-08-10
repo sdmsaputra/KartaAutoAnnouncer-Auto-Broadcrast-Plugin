@@ -14,9 +14,23 @@ public class AutoAnnouncer extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        // Save the default config.yml from the JAR if it doesn't exist
         saveDefaultConfig();
+        getCommand("minekartaautoannouncer").setExecutor(new CommandManager(this));
+        startAnnouncerTask();
+    }
 
+    public void reloadPlugin() {
+        // Cancel the current task
+        if (announcementTask != null && !announcementTask.isCancelled()) {
+            announcementTask.cancel();
+        }
+        // Reload the config file from disk
+        reloadConfig();
+        // Start the task with the new settings
+        startAnnouncerTask();
+    }
+
+    private void startAnnouncerTask() {
         // Load configuration
         String prefix = getConfig().getString("prefix", "&d[Minekarta] &r");
         int interval = getConfig().getInt("interval", 60);
@@ -38,7 +52,7 @@ public class AutoAnnouncer extends JavaPlugin {
         long period = interval * 20L;
         announcementTask = new AnnouncementTask(this, prefix, messages).runTaskTimer(this, 0L, period);
 
-        getLogger().info("AutoAnnouncer has been enabled with " + messages.size() + " messages, running every " + interval + " seconds.");
+        getLogger().info("AutoAnnouncer task has been started/reloaded with " + messages.size() + " messages, running every " + interval + " seconds.");
     }
 
     @Override
