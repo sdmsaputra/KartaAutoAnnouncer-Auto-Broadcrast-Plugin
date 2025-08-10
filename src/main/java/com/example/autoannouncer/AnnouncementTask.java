@@ -1,0 +1,36 @@
+package com.example.autoannouncer;
+
+import org.bukkit.scheduler.BukkitRunnable;
+import java.util.List;
+
+public class AnnouncementTask extends BukkitRunnable {
+
+    private final AutoAnnouncer plugin;
+    private final List<String> messages;
+    private int messageIndex = 0;
+
+    public AnnouncementTask(AutoAnnouncer plugin, List<String> messages) {
+        this.plugin = plugin;
+        this.messages = messages;
+    }
+
+    @Override
+    public void run() {
+        // Ensure the message list is not empty to avoid errors
+        if (messages.isEmpty()) {
+            return;
+        }
+
+        // Get the current message
+        String message = messages.get(messageIndex);
+
+        // Broadcast the colorized message
+        plugin.getServer().broadcastMessage(AutoAnnouncer.colorize(message));
+
+        // Move to the next message for the next execution
+        messageIndex++;
+        if (messageIndex >= messages.size()) {
+            messageIndex = 0; // Reset to the start
+        }
+    }
+}
