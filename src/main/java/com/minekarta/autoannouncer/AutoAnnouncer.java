@@ -1,4 +1,4 @@
-package com.example.autoannouncer;
+package com.minekarta.autoannouncer;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
