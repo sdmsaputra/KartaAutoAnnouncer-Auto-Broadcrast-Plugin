@@ -1,0 +1,5 @@
+name: AutoAnnouncer
+version: 1.0.0
+main: com.example.autoannouncer.AutoAnnouncer
+api-version: 1.18
+description: A simple plugin to automatically broadcast messages.

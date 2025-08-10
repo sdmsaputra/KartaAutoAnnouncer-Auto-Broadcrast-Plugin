@@ -1,0 +1,12 @@
+# Configuration for AutoAnnouncer
+
+# The interval in seconds between each announcement.
+interval: 60
+
+# The list of messages to be broadcast.
+# You can add as many messages as you want.
+# Color codes using '&' are supported.
+messages:
+  - "&aWelcome to our server! We hope you have a great time."
+  - "&bMake sure to read the /rules."
+  - "&eDid you know you can vote for our server to get rewards? Use /vote!"
