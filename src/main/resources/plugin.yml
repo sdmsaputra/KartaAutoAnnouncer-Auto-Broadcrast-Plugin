@@ -1,4 +1,4 @@
-name: MinekartaAutoAnnouncer
+name: KartaAutoAnnouncer
 version: 1.0.0
 main: com.minekarta.autoannouncer.AutoAnnouncer
 api-version: 1.21
