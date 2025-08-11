@@ -36,8 +36,9 @@ public class AnnouncementTask extends BukkitRunnable {
             String rawText = announcement.getText();
             String rawSubtitle = announcement.getSubtitle();
 
-            String parsedText = papiEnabled ? PlaceholderAPI.setPlaceholders(player, rawText) : rawText;
-            String parsedSubtitle = papiEnabled ? PlaceholderAPI.setPlaceholders(player, rawSubtitle) : rawSubtitle;
+            // Parse placeholders only if PAPI is enabled and the text is not null
+            String parsedText = (papiEnabled && rawText != null) ? PlaceholderAPI.setPlaceholders(player, rawText) : rawText;
+            String parsedSubtitle = (papiEnabled && rawSubtitle != null) ? PlaceholderAPI.setPlaceholders(player, rawSubtitle) : rawSubtitle;
 
             Component textComponent = AutoAnnouncer.createComponent(parsedText);
             Component subtitleComponent = AutoAnnouncer.createComponent(parsedSubtitle);
