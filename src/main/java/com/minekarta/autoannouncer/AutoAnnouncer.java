@@ -13,10 +13,17 @@ import java.util.Objects;
 public class AutoAnnouncer extends JavaPlugin {
 
     private BukkitTask announcementTask;
+    public boolean papiEnabled = false;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
+
+        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            this.papiEnabled = true;
+            getLogger().info("Successfully hooked into PlaceholderAPI.");
+        }
+
         // Register command executor
         Objects.requireNonNull(getCommand("minekartaautoannouncer"), "Command not found in plugin.yml")
                .setExecutor(new CommandManager(this));
@@ -73,7 +80,7 @@ public class AutoAnnouncer extends JavaPlugin {
 
         // Schedule the announcement task
         long period = interval * 20L;
-        announcementTask = new AnnouncementTask(this, announcements, prefix).runTaskTimer(this, 0L, period);
+        announcementTask = new AnnouncementTask(this, announcements, prefix, papiEnabled).runTaskTimer(this, 0L, period);
 
         getLogger().info("AutoAnnouncer task has been started/reloaded with " + announcements.size() + " messages, running every " + interval + " seconds.");
     }

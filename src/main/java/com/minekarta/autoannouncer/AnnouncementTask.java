@@ -1,5 +1,6 @@
 package com.minekarta.autoannouncer;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
@@ -13,12 +14,14 @@ public class AnnouncementTask extends BukkitRunnable {
     private final AutoAnnouncer plugin;
     private final List<Announcement> announcements;
     private final String prefix;
+    private final boolean papiEnabled;
     private int messageIndex = 0;
 
-    public AnnouncementTask(AutoAnnouncer plugin, List<Announcement> announcements, String prefix) {
+    public AnnouncementTask(AutoAnnouncer plugin, List<Announcement> announcements, String prefix, boolean papiEnabled) {
         this.plugin = plugin;
         this.announcements = announcements;
         this.prefix = prefix;
+        this.papiEnabled = papiEnabled;
     }
 
     @Override
@@ -28,10 +31,18 @@ public class AnnouncementTask extends BukkitRunnable {
         }
 
         Announcement announcement = announcements.get(messageIndex);
-        Component textComponent = AutoAnnouncer.createComponent(announcement.getText());
-        Component subtitleComponent = AutoAnnouncer.createComponent(announcement.getSubtitle());
 
         for (Player player : Bukkit.getOnlinePlayers()) {
+            String rawText = announcement.getText();
+            String rawSubtitle = announcement.getSubtitle();
+
+            // Parse placeholders only if PAPI is enabled and the text is not null
+            String parsedText = (papiEnabled && rawText != null) ? PlaceholderAPI.setPlaceholders(player, rawText) : rawText;
+            String parsedSubtitle = (papiEnabled && rawSubtitle != null) ? PlaceholderAPI.setPlaceholders(player, rawSubtitle) : rawSubtitle;
+
+            Component textComponent = AutoAnnouncer.createComponent(parsedText);
+            Component subtitleComponent = AutoAnnouncer.createComponent(parsedSubtitle);
+
             switch (announcement.getType()) {
                 case CHAT:
                     Component prefixComponent = AutoAnnouncer.createComponent(prefix);
