@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.minekarta</groupId>
-    <artifactId>MinekartaAutoAnnouncer</artifactId>
+    <artifactId>KartaAutoAnnouncer</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>MinekartaAutoAnnouncer</name>
+    <name>KartaAutoAnnouncer</name>
 
     <properties>
         <java.version>21</java.version>

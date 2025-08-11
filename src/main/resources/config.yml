@@ -1,8 +1,8 @@
-# Configuration for Minekarta-Auto-Announcer
+# Configuration for KartaAutoAnnouncer
 #
 # The prefix to be displayed before every CHAT announcement.
 # This does not apply to ACTION_BAR or TITLE messages.
-prefix: "&d[Minekarta] &r"
+prefix: "&d[Karta] &r"
 
 # The interval in seconds between each announcement.
 interval: 60
