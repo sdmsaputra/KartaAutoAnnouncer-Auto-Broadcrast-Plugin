@@ -1,3 +1,6 @@
-com/minekarta/autoannouncer/CommandManager.class
+com/minekarta/autoannouncer/Announcement.class
 com/minekarta/autoannouncer/AnnouncementTask.class
+com/minekarta/autoannouncer/AnnouncementType.class
+com/minekarta/autoannouncer/CommandManager.class
 com/minekarta/autoannouncer/AutoAnnouncer.class
+com/minekarta/autoannouncer/AnnouncementTask$1.class

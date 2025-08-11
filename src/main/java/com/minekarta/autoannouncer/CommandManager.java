@@ -10,7 +10,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CommandManager implements CommandExecutor, TabCompleter {
@@ -50,7 +52,6 @@ public class CommandManager implements CommandExecutor, TabCompleter {
             return true;
         }
         plugin.reloadPlugin();
-        sender.sendMessage(ChatColor.GREEN + "AutoAnnouncer configuration has been reloaded.");
         return true;
     }
 
@@ -59,18 +60,23 @@ public class CommandManager implements CommandExecutor, TabCompleter {
             sender.sendMessage(ChatColor.RED + "You do not have permission to use this command.");
             return true;
         }
-        if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /" + args[0] + " add <message>");
+        if (args.length < 3 || !args[1].equalsIgnoreCase("chat")) {
+            sender.sendMessage(ChatColor.RED + "Usage: /" + args[0] + " add chat <message...>");
             return true;
         }
 
-        String message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
-        List<String> messages = plugin.getConfig().getStringList("messages");
-        messages.add(message);
+        String message = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
+        List<Map<?, ?>> messages = plugin.getConfig().getMapList("messages");
+
+        Map<String, String> newMessage = new HashMap<>();
+        newMessage.put("type", "CHAT");
+        newMessage.put("text", message);
+
+        messages.add(newMessage);
         plugin.getConfig().set("messages", messages);
         plugin.saveConfig();
 
-        sender.sendMessage(ChatColor.GREEN + "Message added successfully! Reload the plugin (/maa reload) to apply changes.");
+        sender.sendMessage(ChatColor.GREEN + "Chat message added successfully! Reload the plugin (/maa reload) to apply changes.");
         return true;
     }
 
@@ -110,6 +116,10 @@ public class CommandManager implements CommandExecutor, TabCompleter {
             return subcommands.stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());
+        }
+
+        if (args.length == 2 && args[0].equalsIgnoreCase("add")) {
+            return Collections.singletonList("chat");
         }
 
         return Collections.emptyList();

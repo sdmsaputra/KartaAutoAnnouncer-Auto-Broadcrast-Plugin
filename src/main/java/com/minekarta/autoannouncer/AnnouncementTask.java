@@ -1,40 +1,55 @@
 package com.minekarta.autoannouncer;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+
 import java.util.List;
 
 public class AnnouncementTask extends BukkitRunnable {
 
     private final AutoAnnouncer plugin;
+    private final List<Announcement> announcements;
     private final String prefix;
-    private final List<String> messages;
     private int messageIndex = 0;
 
-    public AnnouncementTask(AutoAnnouncer plugin, String prefix, List<String> messages) {
+    public AnnouncementTask(AutoAnnouncer plugin, List<Announcement> announcements, String prefix) {
         this.plugin = plugin;
+        this.announcements = announcements;
         this.prefix = prefix;
-        this.messages = messages;
     }
 
     @Override
     public void run() {
-        // Ensure the message list is not empty to avoid errors
-        if (messages.isEmpty()) {
+        if (announcements.isEmpty() || Bukkit.getOnlinePlayers().isEmpty()) {
             return;
         }
 
-        // Get the current message
-        String message = messages.get(messageIndex);
+        Announcement announcement = announcements.get(messageIndex);
+        Component textComponent = AutoAnnouncer.createComponent(announcement.getText());
+        Component subtitleComponent = AutoAnnouncer.createComponent(announcement.getSubtitle());
 
-        // Combine prefix and message, then colorize the whole thing
-        String finalMessage = prefix + message;
-
-        // Broadcast the colorized message
-        plugin.getServer().broadcastMessage(AutoAnnouncer.colorize(finalMessage));
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            switch (announcement.getType()) {
+                case CHAT:
+                    Component prefixComponent = AutoAnnouncer.createComponent(prefix);
+                    player.sendMessage(prefixComponent.append(textComponent));
+                    break;
+                case ACTION_BAR:
+                    player.sendActionBar(textComponent);
+                    break;
+                case TITLE:
+                    Title title = Title.title(textComponent, subtitleComponent);
+                    player.showTitle(title);
+                    break;
+            }
+        }
 
         // Move to the next message for the next execution
         messageIndex++;
-        if (messageIndex >= messages.size()) {
+        if (messageIndex >= announcements.size()) {
             messageIndex = 0; // Reset to the start
         }
     }
