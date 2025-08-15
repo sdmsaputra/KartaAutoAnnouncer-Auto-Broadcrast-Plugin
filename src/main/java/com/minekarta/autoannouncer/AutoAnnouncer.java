@@ -43,33 +43,35 @@ public class AutoAnnouncer extends JavaPlugin {
     }
 
     private void startAnnouncerTask() {
-        // Load configuration
         String prefix = getConfig().getString("prefix", "&d[Minekarta] &r");
         int interval = getConfig().getInt("interval", 60);
-        List<Map<?, ?>> messageMaps = getConfig().getMapList("messages");
 
-        // Parse messages from the config into Announcement objects
         List<Announcement> announcements = new ArrayList<>();
-        for (Map<?, ?> map : messageMaps) {
-            String typeStr = (String) map.get("type");
-            String text = (String) map.get("text");
+        if (getConfig().isConfigurationSection("announcements")) {
+            // Chat messages
+            getConfig().getStringList("announcements.chat").forEach(text ->
+                    announcements.add(new Announcement(AnnouncementType.CHAT, text, null))
+            );
 
-            if (typeStr == null || text == null) {
-                getLogger().warning("A message in config.yml is missing 'type' or 'text'. Skipping it.");
-                continue;
-            }
+            // Action bar messages
+            getConfig().getStringList("announcements.action_bar").forEach(text ->
+                    announcements.add(new Announcement(AnnouncementType.ACTION_BAR, text, null))
+            );
 
-            try {
-                AnnouncementType type = AnnouncementType.valueOf(typeStr.toUpperCase());
-                String subtitle = (String) map.get("subtitle");
-                announcements.add(new Announcement(type, text, subtitle));
-            } catch (IllegalArgumentException e) {
-                getLogger().warning("Invalid message type '" + typeStr + "' in config.yml. Skipping it.");
+            // Title messages
+            if (getConfig().isList("announcements.title")) {
+                getConfig().getMapList("announcements.title").forEach(map -> {
+                    String title = (String) map.get("title");
+                    String subtitle = (String) map.get("subtitle");
+                    if (title != null) {
+                        announcements.add(new Announcement(AnnouncementType.TITLE, title, subtitle));
+                    }
+                });
             }
         }
 
         if (announcements.isEmpty()) {
-            getLogger().warning("No valid messages found in config.yml. The announcer will not start.");
+            getLogger().warning("No valid announcements found in config.yml. The announcer will not start.");
             return;
         }
 
@@ -78,11 +80,10 @@ public class AutoAnnouncer extends JavaPlugin {
             return;
         }
 
-        // Schedule the announcement task
         long period = interval * 20L;
         announcementTask = new AnnouncementTask(this, announcements, prefix, papiEnabled).runTaskTimer(this, 0L, period);
 
-        getLogger().info("AutoAnnouncer task has been started/reloaded with " + announcements.size() + " messages, running every " + interval + " seconds.");
+        getLogger().info("AutoAnnouncer task has been started/reloaded with " + announcements.size() + " announcements, running every " + interval + " seconds.");
     }
 
     @Override
