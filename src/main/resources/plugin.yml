@@ -1,5 +1,5 @@
 name: KartaAutoAnnouncer
-version: 1.0.0
+version: 1.3.0
 main: com.minekarta.autoannouncer.AutoAnnouncer
 api-version: 1.21
 description: A simple plugin to automatically broadcast messages.
@@ -8,7 +8,7 @@ commands:
   minekartaautoannouncer:
     description: Main command for the AutoAnnouncer plugin.
     usage: /<command> [reload|add|setinterval]
-    aliases: [maa]
+    aliases: [kaa]
 permissions:
   autoannouncer.admin:
     description: Allows access to all admin commands for AutoAnnouncer.

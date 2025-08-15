@@ -7,12 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CommandManager implements CommandExecutor, TabCompleter {
@@ -27,7 +22,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (args.length == 0) {
-            sender.sendMessage(ChatColor.GOLD + "Usage: /" + label + " <reload|add|setinterval>");
+            sendUsage(sender, label);
             return true;
         }
 
@@ -41,9 +36,13 @@ public class CommandManager implements CommandExecutor, TabCompleter {
             case "setinterval":
                 return handleSetInterval(sender, args);
             default:
-                sender.sendMessage(ChatColor.RED + "Unknown subcommand. Usage: /" + label + " <reload|add|setinterval>");
+                sendUsage(sender, label);
                 return true;
         }
+    }
+
+    private void sendUsage(CommandSender sender, String label) {
+        sender.sendMessage(ChatColor.GOLD + "Usage: /" + label + " <reload|add|setinterval>");
     }
 
     private boolean handleReload(CommandSender sender) {
@@ -52,6 +51,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
             return true;
         }
         plugin.reloadPlugin();
+        sender.sendMessage(ChatColor.GREEN + "Configuration reloaded successfully!");
         return true;
     }
 
@@ -60,25 +60,57 @@ public class CommandManager implements CommandExecutor, TabCompleter {
             sender.sendMessage(ChatColor.RED + "You do not have permission to use this command.");
             return true;
         }
-        if (args.length < 3 || !args[1].equalsIgnoreCase("chat")) {
-            sender.sendMessage(ChatColor.RED + "Usage: /" + args[0] + " add chat <message...>");
+
+        if (args.length < 3) {
+            sender.sendMessage(ChatColor.RED + "Usage: /kaa add <type> <message...>");
+            sender.sendMessage(ChatColor.RED + "Types: chat, actionbar, title");
             return true;
         }
 
+        String type = args[1].toLowerCase();
         String message = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
-        List<Map<?, ?>> messages = plugin.getConfig().getMapList("messages");
 
-        Map<String, String> newMessage = new HashMap<>();
-        newMessage.put("type", "CHAT");
-        newMessage.put("text", message);
+        switch (type) {
+            case "chat":
+            case "actionbar":
+                return addSimpleMessage(sender, type, message);
+            case "title":
+                return addTitleMessage(sender, message);
+            default:
+                sender.sendMessage(ChatColor.RED + "Invalid announcement type. Use 'chat', 'actionbar', or 'title'.");
+                return true;
+        }
+    }
 
-        messages.add(newMessage);
-        plugin.getConfig().set("messages", messages);
+    private boolean addSimpleMessage(CommandSender sender, String type, String message) {
+        String path = "announcements." + (type.equals("chat") ? "chat" : "action_bar");
+        List<String> messages = plugin.getConfig().getStringList(path);
+        messages.add(message);
+        plugin.getConfig().set(path, messages);
         plugin.saveConfig();
 
-        sender.sendMessage(ChatColor.GREEN + "Chat message added successfully! Reload the plugin (/maa reload) to apply changes.");
+        sender.sendMessage(ChatColor.GREEN + "Successfully added " + type + " announcement! Reload with /kaa reload to see changes.");
         return true;
     }
+
+    private boolean addTitleMessage(CommandSender sender, String fullMessage) {
+        String[] parts = fullMessage.split("\\|", 2);
+        String title = parts[0].trim();
+        String subtitle = (parts.length > 1) ? parts[1].trim() : "";
+
+        List<Map<?, ?>> titles = plugin.getConfig().getMapList("announcements.title");
+        Map<String, String> newTitle = new HashMap<>();
+        newTitle.put("title", title);
+        newTitle.put("subtitle", subtitle);
+        titles.add(newTitle);
+
+        plugin.getConfig().set("announcements.title", titles);
+        plugin.saveConfig();
+
+        sender.sendMessage(ChatColor.GREEN + "Successfully added title announcement! Reload with /kaa reload to see changes.");
+        return true;
+    }
+
 
     private boolean handleSetInterval(CommandSender sender, String[] args) {
         if (!sender.hasPermission(permission)) {
@@ -86,7 +118,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
             return true;
         }
         if (args.length != 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /" + args[0] + " setinterval <seconds>");
+            sender.sendMessage(ChatColor.RED + "Usage: /kaa setinterval <seconds>");
             return true;
         }
 
@@ -98,9 +130,9 @@ public class CommandManager implements CommandExecutor, TabCompleter {
             }
             plugin.getConfig().set("interval", interval);
             plugin.saveConfig();
-            sender.sendMessage(ChatColor.GREEN + "Interval set to " + interval + " seconds. Reload the plugin (/maa reload) to apply changes.");
+            sender.sendMessage(ChatColor.GREEN + "Interval set to " + interval + " seconds. Reload with /kaa reload to apply changes.");
         } catch (NumberFormatException e) {
-            sender.sendMessage(ChatColor.RED + "Invalid number format. Please provide a whole number for the interval.");
+            sender.sendMessage(ChatColor.RED + "Invalid number format.");
         }
         return true;
     }
@@ -112,14 +144,15 @@ public class CommandManager implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 1) {
-            List<String> subcommands = Arrays.asList("reload", "add", "setinterval");
-            return subcommands.stream()
+            return Arrays.asList("reload", "add", "setinterval").stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());
         }
 
         if (args.length == 2 && args[0].equalsIgnoreCase("add")) {
-            return Collections.singletonList("chat");
+            return Arrays.asList("chat", "actionbar", "title").stream()
+                    .filter(s -> s.startsWith(args[1].toLowerCase()))
+                    .collect(Collectors.toList());
         }
 
         return Collections.emptyList();
