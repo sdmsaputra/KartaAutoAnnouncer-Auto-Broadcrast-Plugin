@@ -5,7 +5,7 @@ api-version: 1.21
 description: A simple plugin to automatically broadcast messages.
 depend: [PlaceholderAPI]
 commands:
-  minekartaautoannouncer:
+  kartaautoannouncer:
     description: Main command for the AutoAnnouncer plugin.
     usage: /<command> [reload|add|setinterval]
     aliases: [kaa]
