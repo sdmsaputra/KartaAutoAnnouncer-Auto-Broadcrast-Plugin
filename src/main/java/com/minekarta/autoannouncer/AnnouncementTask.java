@@ -11,17 +11,17 @@ import java.util.List;
 
 public class AnnouncementTask extends BukkitRunnable {
 
-    private final AutoAnnouncer plugin;
     private final List<Announcement> announcements;
     private final String prefix;
     private final boolean papiEnabled;
+    private final boolean prefixEnabled;
     private int messageIndex = 0;
 
-    public AnnouncementTask(AutoAnnouncer plugin, List<Announcement> announcements, String prefix, boolean papiEnabled) {
-        this.plugin = plugin;
+    public AnnouncementTask(List<Announcement> announcements, String prefix, boolean papiEnabled, boolean prefixEnabled) {
         this.announcements = announcements;
         this.prefix = prefix;
         this.papiEnabled = papiEnabled;
+        this.prefixEnabled = prefixEnabled;
     }
 
     @Override
@@ -36,7 +36,6 @@ public class AnnouncementTask extends BukkitRunnable {
             String rawText = announcement.getText();
             String rawSubtitle = announcement.getSubtitle();
 
-            // Parse placeholders only if PAPI is enabled and the text is not null
             String parsedText = (papiEnabled && rawText != null) ? PlaceholderAPI.setPlaceholders(player, rawText) : rawText;
             String parsedSubtitle = (papiEnabled && rawSubtitle != null) ? PlaceholderAPI.setPlaceholders(player, rawSubtitle) : rawSubtitle;
 
@@ -45,8 +44,25 @@ public class AnnouncementTask extends BukkitRunnable {
 
             switch (announcement.getType()) {
                 case CHAT:
-                    Component prefixComponent = AutoAnnouncer.createComponent(prefix);
-                    player.sendMessage(prefixComponent.append(textComponent));
+                    if (parsedText != null && parsedText.contains("\n")) {
+                        String[] lines = parsedText.split("\n");
+                        for (String line : lines) {
+                            Component lineComponent = AutoAnnouncer.createComponent(line);
+                            if (prefixEnabled) {
+                                Component prefixComponent = AutoAnnouncer.createComponent(prefix);
+                                player.sendMessage(prefixComponent.append(lineComponent));
+                            } else {
+                                player.sendMessage(lineComponent);
+                            }
+                        }
+                    } else {
+                        if (prefixEnabled) {
+                            Component prefixComponent = AutoAnnouncer.createComponent(prefix);
+                            player.sendMessage(prefixComponent.append(textComponent));
+                        } else {
+                            player.sendMessage(textComponent);
+                        }
+                    }
                     break;
                 case ACTION_BAR:
                     player.sendActionBar(textComponent);
@@ -58,10 +74,6 @@ public class AnnouncementTask extends BukkitRunnable {
             }
         }
 
-        // Move to the next message for the next execution
-        messageIndex++;
-        if (messageIndex >= announcements.size()) {
-            messageIndex = 0; // Reset to the start
-        }
+        messageIndex = (messageIndex + 1) % announcements.size();
     }
 }
