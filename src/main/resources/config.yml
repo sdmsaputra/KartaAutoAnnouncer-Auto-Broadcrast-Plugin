@@ -1,31 +1,38 @@
 # Configuration for KartaAutoAnnouncer
-#
 # The interval in seconds between each announcement.
 interval: 60
 
-# The prefix to be displayed before every CHAT announcement.
-# This does not apply to ACTION_BAR or TITLE messages.
-prefix: "&d[Karta] &r"
+# Prefix settings for CHAT announcements.
+prefix:
+  # Set to true to enable the prefix, false to disable it.
+  enabled: true
+  # The text to be displayed as the prefix.
+  text: "&d[Karta] &r"
 
 # A list of messages to be broadcast.
-#
-# Supported types:
-# - CHAT: A standard chat message. Will be prefixed with the 'prefix' above.
-# - ACTION_BAR: A message that appears above the player's hotbar.
-# - TITLE: A large title message that appears in the center of the screen.
-#
-# For TITLE messages, you can also add a 'subtitle'.
-#
+# You can enable or disable each announcement type individually.
 # Color codes (&a, &b, etc.) and hex colors (&#RRGGBB) are supported in all text fields.
 announcements:
   chat:
-    - "message 1"
-    - "message 2"
+    # Set to true to enable chat announcements, false to disable.
+    enabled: true
+    messages:
+      - "This is a single-line chat message."
+      - [
+          "This is a multi-line message.",
+          "This is the second line."
+        ]
   action_bar:
-    - "action bar 1"
-    - "action bar 2"
+    # Set to true to enable action bar announcements, false to disable.
+    enabled: true
+    messages:
+      - "&aThis is an action bar message."
+      - "&eCheck out our website!"
   title:
-    - title: "title 1"
-      subtitle: "subtitle 1"
-    - title: "title 2"
-      subtitle: "subtitle 2"
+    # Set to true to enable title announcements, false to disable.
+    enabled: true
+    messages:
+      - title: "&6Welcome!"
+        subtitle: "&fEnjoy your stay on our server."
+      - title: "&cVote for us!"
+        subtitle: "&fReceive rewards for your support."
