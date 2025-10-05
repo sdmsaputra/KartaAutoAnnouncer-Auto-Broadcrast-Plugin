@@ -44,24 +44,20 @@ public class AnnouncementTask extends BukkitRunnable {
 
             switch (announcement.getType()) {
                 case CHAT:
-                    if (parsedText != null && parsedText.contains("\n")) {
-                        String[] lines = parsedText.split("\n");
-                        for (String line : lines) {
-                            Component lineComponent = AutoAnnouncer.createComponent(line);
-                            if (prefixEnabled) {
-                                Component prefixComponent = AutoAnnouncer.createComponent(prefix);
-                                player.sendMessage(prefixComponent.append(lineComponent));
-                            } else {
-                                player.sendMessage(lineComponent);
-                            }
-                        }
+                    if (parsedText == null) break;
+
+                    String[] lines = parsedText.split("\n");
+
+                    Component firstLineComponent = AutoAnnouncer.createComponent(lines[0]);
+                    if (prefixEnabled) {
+                        Component prefixComponent = AutoAnnouncer.createComponent(prefix);
+                        player.sendMessage(prefixComponent.append(firstLineComponent));
                     } else {
-                        if (prefixEnabled) {
-                            Component prefixComponent = AutoAnnouncer.createComponent(prefix);
-                            player.sendMessage(prefixComponent.append(textComponent));
-                        } else {
-                            player.sendMessage(textComponent);
-                        }
+                        player.sendMessage(firstLineComponent);
+                    }
+
+                    for (int i = 1; i < lines.length; i++) {
+                        player.sendMessage(AutoAnnouncer.createComponent(lines[i]));
                     }
                     break;
                 case ACTION_BAR:
